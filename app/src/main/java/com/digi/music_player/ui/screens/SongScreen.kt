@@ -80,19 +80,6 @@ fun SongScreen(player: ExoPlayer, playList: List<Music>) {
     val playingSongIndex = remember {
         mutableIntStateOf(0)
     }
-    LaunchedEffect(pagerState.currentPage) {
-        playingSongIndex.intValue = pagerState.currentPage
-        player.seekTo(pagerState.currentPage, 0)
-    }
-
-    LaunchedEffect(player.currentMediaItemIndex) {
-        playingSongIndex.intValue = player.currentMediaItemIndex
-        pagerState.animateScrollToPage(
-            playingSongIndex.intValue,
-            animationSpec = tween(500)
-        )
-    }
-
 
     val isPlaying = remember {
         mutableStateOf(false)
@@ -108,6 +95,20 @@ fun SongScreen(player: ExoPlayer, playList: List<Music>) {
 
     val totalDuration = remember {
         mutableLongStateOf(0)
+    }
+    val configuration = LocalConfiguration.current
+
+    LaunchedEffect(pagerState.currentPage) {
+        playingSongIndex.intValue = pagerState.currentPage
+        player.seekTo(pagerState.currentPage, 0)
+    }
+
+    LaunchedEffect(player.currentMediaItemIndex) {
+        playingSongIndex.intValue = player.currentMediaItemIndex
+        pagerState.animateScrollToPage(
+            playingSongIndex.intValue,
+            animationSpec = tween(500)
+        )
     }
 
 
@@ -130,9 +131,9 @@ fun SongScreen(player: ExoPlayer, playList: List<Music>) {
         modifier = Modifier
             .fillMaxSize(), contentAlignment = Alignment.Center
     ) {
-        val configuration = LocalConfiguration.current
 
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
 
             /***
@@ -159,21 +160,6 @@ fun SongScreen(player: ExoPlayer, playList: List<Music>) {
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-
-
-            /***
-             * Includes animated song album cover
-             */
-
-
-            /***
-             * Includes animated song album cover
-             */
-
-
-            /***
-             * Includes animated song album cover
-             */
 
 
             /***
