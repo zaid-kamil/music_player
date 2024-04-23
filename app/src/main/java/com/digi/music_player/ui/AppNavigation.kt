@@ -40,7 +40,7 @@ fun AppNavigation() {
                 }
             }
             player.prepare()
-            SongScreen(player, playList = playList)
+            SongScreen(state, player, playList = playList, onEvent = vm::onEvent)
 
         }
     }

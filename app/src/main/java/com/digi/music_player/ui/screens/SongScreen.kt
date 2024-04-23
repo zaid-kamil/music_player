@@ -43,7 +43,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -73,7 +72,12 @@ import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
 @Composable
-fun SongScreen(player: ExoPlayer, playList: List<Music>) {
+fun SongScreen(
+    state: PlayerState,
+    player: ExoPlayer,
+    playList: List<Music>,
+    onEvent: (PlayerEvent) -> Unit,
+) {
 
 
     val pagerState = rememberPagerState(pageCount = { playList.count() })
@@ -81,9 +85,7 @@ fun SongScreen(player: ExoPlayer, playList: List<Music>) {
         mutableIntStateOf(0)
     }
 
-    val isPlaying = remember {
-        mutableStateOf(false)
-    }
+
 
     val currentPosition = remember {
         mutableLongStateOf(0)
@@ -133,7 +135,7 @@ fun SongScreen(player: ExoPlayer, playList: List<Music>) {
     ) {
 
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
 
             /***
@@ -175,7 +177,7 @@ fun SongScreen(player: ExoPlayer, playList: List<Music>) {
                 val painter = painterResource(id = playList[page].cover)
 
                 if (page == pagerState.currentPage) {
-                    VinylAlbumCoverAnimation(isSongPlaying = isPlaying.value, painter = painter)
+                    VinylAlbumCoverAnimation(isSongPlaying = state.isPlaying, painter = painter)
                 } else {
                     VinylAlbumCoverAnimation(isSongPlaying = false, painter = painter)
                 }
@@ -231,15 +233,15 @@ fun SongScreen(player: ExoPlayer, playList: List<Music>) {
                 })
                 Spacer(modifier = Modifier.width(20.dp))
                 ControlButton(
-                    icon = if (isPlaying.value) R.drawable.ic_pause else R.drawable.ic_play,
+                    icon = if (state.isPlaying) R.drawable.ic_pause else R.drawable.ic_play,
                     size = 100.dp,
                     onClick = {
-                        if (isPlaying.value) {
+                        if (state.isPlaying) {
                             player.pause()
                         } else {
                             player.play()
                         }
-                        isPlaying.value = player.isPlaying
+                        onEvent(PlayerEvent.TogglePlayPause(player.isPlaying))
                     })
                 Spacer(modifier = Modifier.width(20.dp))
                 ControlButton(icon = R.drawable.ic_next, size = 40.dp, onClick = {
