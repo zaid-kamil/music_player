@@ -15,6 +15,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,6 +35,7 @@ import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
@@ -43,6 +45,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -72,12 +75,7 @@ import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
 @Composable
-fun SongScreen(
-    state: PlayerState,
-    player: ExoPlayer,
-    playList: List<Music>,
-    onEvent: (PlayerEvent) -> Unit,
-) {
+fun SongScreen(player: ExoPlayer, playList: List<Music>) {
 
 
     val pagerState = rememberPagerState(pageCount = { playList.count() })
@@ -85,7 +83,9 @@ fun SongScreen(
         mutableIntStateOf(0)
     }
 
-
+    val isPlaying = remember {
+        mutableStateOf(false)
+    }
 
     val currentPosition = remember {
         mutableLongStateOf(0)
@@ -131,7 +131,9 @@ fun SongScreen(
 
     Box(
         modifier = Modifier
-            .fillMaxSize(), contentAlignment = Alignment.Center
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.inverseSurface),
+        contentAlignment = Alignment.Center
     ) {
 
 
@@ -177,7 +179,7 @@ fun SongScreen(
                 val painter = painterResource(id = playList[page].cover)
 
                 if (page == pagerState.currentPage) {
-                    VinylAlbumCoverAnimation(isSongPlaying = state.isPlaying, painter = painter)
+                    VinylAlbumCoverAnimation(isSongPlaying = isPlaying.value, painter = painter)
                 } else {
                     VinylAlbumCoverAnimation(isSongPlaying = false, painter = painter)
                 }
@@ -233,15 +235,15 @@ fun SongScreen(
                 })
                 Spacer(modifier = Modifier.width(20.dp))
                 ControlButton(
-                    icon = if (state.isPlaying) R.drawable.ic_pause else R.drawable.ic_play,
+                    icon = if (isPlaying.value) R.drawable.ic_pause else R.drawable.ic_play,
                     size = 100.dp,
                     onClick = {
-                        if (state.isPlaying) {
+                        if (isPlaying.value) {
                             player.pause()
                         } else {
                             player.play()
                         }
-                        onEvent(PlayerEvent.TogglePlayPause(player.isPlaying))
+                        isPlaying.value = player.isPlaying
                     })
                 Spacer(modifier = Modifier.width(20.dp))
                 ControlButton(icon = R.drawable.ic_next, size = 40.dp, onClick = {

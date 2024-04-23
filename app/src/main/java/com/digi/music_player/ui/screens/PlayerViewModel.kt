@@ -27,7 +27,6 @@ sealed class PlayerEvent {
     data object Resume : PlayerEvent()
     data object Next : PlayerEvent()
     data object Previous : PlayerEvent()
-    data class TogglePlayPause(val isPlaying: Boolean) : PlayerEvent()
     data class UpdateCurrentSong(val song: Music) : PlayerEvent()
 }
 
@@ -79,7 +78,7 @@ class MusicPlayerViewModel : ViewModel() {
     }
 
     // Function to handle player events
-    fun onEvent(event: PlayerEvent) {
+    fun handlePlayerEvent(event: PlayerEvent) {
         when (event) {
             is PlayerEvent.Play -> _state.value.resume()
             is PlayerEvent.Pause -> _state.value.pause()
@@ -88,13 +87,6 @@ class MusicPlayerViewModel : ViewModel() {
             is PlayerEvent.UpdateCurrentSong -> _state.value.currentSong = event.song
             PlayerEvent.Next -> _state.value.playNext()
             PlayerEvent.Previous -> _state.value.playPrevious()
-            is PlayerEvent.TogglePlayPause -> {
-                if (event.isPlaying) {
-                    _state.value.resume()
-                } else {
-                    _state.value.pause()
-                }
-            }
         }
     }
 
